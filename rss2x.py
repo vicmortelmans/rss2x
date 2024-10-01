@@ -40,6 +40,6 @@ with open('image_name.png', 'wb') as handler:
 # Create media
 media = alledaagsg_tweepy_client_v1.media_upload(filename='image_name.png')
 media_id = media.media_id
-print(title, link, description, image_url, media_id)
 
-#alledaagsg_tweepy_client_v2.create_tweet(text="Tweet text", media_ids=[media_id])
+# Send tweet
+alledaagsg_tweepy_client_v2.create_tweet(text=f"{title}\n{link}", media_ids=[media_id])
