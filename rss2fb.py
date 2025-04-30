@@ -91,7 +91,7 @@ def send_renewal_email():
     msg['Subject'] = 'Facebook Token Renewal Reminder'
     msg['From'] = os.getenv('EMAIL_USER')
     msg['To'] = os.getenv('EMAIL_TO')
-    msg.set_content('Your Facebook token is due for renewal soon. Please upload a new short-lived token.')
+    msg.set_content('Your Facebook token is due for renewal soon. Please upload a new short-lived token (https://developers.facebook.com/tools/explorer/1530735111165061/).')
 
     with smtplib.SMTP(os.getenv('EMAIL_HOST'), int(os.getenv('EMAIL_PORT'))) as server:
         server.starttls()
