@@ -2,8 +2,10 @@ import os
 import feedparser
 import json
 import logging
+import smtplib
 import time
 import requests
+from email.message import EmailMessage
 from sys import stdout
 from flask import Flask, request, redirect
 from datetime import datetime, timedelta
@@ -84,6 +86,27 @@ def ensure_valid_tokens():
     save_tokens(tokens)
     return page_token
 
+def send_renewal_email():
+    msg = EmailMessage()
+    msg['Subject'] = 'Facebook Token Renewal Reminder'
+    msg['From'] = os.getenv('EMAIL_USER')
+    msg['To'] = os.getenv('EMAIL_TO')
+    msg.set_content('Your Facebook token is due for renewal soon. Please upload a new short-lived token.')
+
+    with smtplib.SMTP(os.getenv('EMAIL_HOST'), int(os.getenv('EMAIL_PORT'))) as server:
+        server.starttls()
+        server.login(os.getenv('EMAIL_USER'), os.getenv('EMAIL_PASS'))
+        server.send_message(msg)
+
+def token_expiring_soon():
+    try:
+        with open('tokens.json') as f:
+            tokens = json.load(f)
+        expiry = datetime.fromisoformat(tokens['expires_at'])
+        return expiry < datetime.now() + timedelta(days=5)
+    except Exception:
+        return True  # Assume expired or missing
+
 # ========================
 # Example daily post
 # ========================
@@ -123,3 +146,7 @@ if __name__ == "__main__":
         print(f"Successfully posted image with id: {post['post_id']}")
     except GraphAPIError as e:
         print(f"Error: {e}")
+
+    if token_expiring_soon():
+        send_renewal_email()
+
